@@ -1,4 +1,5 @@
 import prisma from "../config/db";
+import { processPayment } from "./payment.service";
 
 export const createEscrowTransaction = async (data: {
   title: string;
@@ -27,12 +28,21 @@ export const fundEscrowTransaction = async (id: string, buyerId: string) => {
   if (!transaction) throw new Error("Transaction not found");
   if (transaction.buyerId !== buyerId) throw new Error("Unauthorized");
 
-  return await prisma.escrowTransaction.update({
-    where: { id },
-    data: {
-      status: "FUNDED",
-    },
-  });
+  // Call the mock payment service
+  const paymentResult = await processPayment(transaction.amount, buyerId);
+
+   if (paymentResult.success) {
+     // Update transaction status if payment is successful
+     return await prisma.escrowTransaction.update({
+       where: { id },
+       data: {
+         status: "FUNDED",
+         paymentTransactionId: paymentResult.transactionId,
+       },
+     });
+   } else {
+     throw new Error(paymentResult.message);
+   }
 };
 
 export const markEscrowAsDelivered = async (id: string, sellerId: string) => {

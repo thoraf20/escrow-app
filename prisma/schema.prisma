@@ -43,6 +43,7 @@ model EscrowTransaction {
   resolutionWinner ResolutionParty? // NEW
   resolutionNotes  String?          // NEW
   resolvedAt       DateTime?        // NEW
+  paymentTransactionId  String?  // Add this field to store payment transaction ID
   buyer       User         @relation("BuyerTransactions", fields: [buyerId], references: [id])
   buyerId     String
   seller      User         @relation("SellerTransactions", fields: [sellerId], references: [id])
