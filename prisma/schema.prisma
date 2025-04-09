@@ -14,17 +14,46 @@ datasource db {
 }
 
 model User {
-  id       String  @id @default(uuid())
-  name     String
-  email    String  @unique
-  password String
-  role     String  @default("buyer") // buyer, seller, admin
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("BUYER") // buyer, seller, admin
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt()
+
+  // Relations
+  buyerTransactions  EscrowTransaction[] @relation("BuyerTransactions")
+  sellerTransactions EscrowTransaction[] @relation("SellerTransactions")
 }
 
 enum Role {
   ADMIN
   BUYER
   SELLER
+}
+
+model EscrowTransaction {
+  id          String       @id @default(uuid())
+  title       String
+  description String
+  amount      Float
+  status      EscrowStatus @default(PENDING)
+  disputeReason String?
+  buyer       User         @relation("BuyerTransactions", fields: [buyerId], references: [id])
+  buyerId     String
+  seller      User         @relation("SellerTransactions", fields: [sellerId], references: [id])
+  sellerId    String
+  adminId     String? // optional
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+enum EscrowStatus {
+  PENDING
+  FUNDED
+  DELIVERED
+  RELEASED
+  DISPUTED
+  CANCELLED
 }

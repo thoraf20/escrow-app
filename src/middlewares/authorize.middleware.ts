@@ -15,9 +15,3 @@ export const authorize =
 
     next();
   };
-
-
-  // sample usage
-  // app.post("/escrow/create", authorize([Role.BUYER]), (req, res) => {
-  //   res.json({ message: "Escrow transaction created" });
-  // });
