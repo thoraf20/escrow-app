@@ -12,7 +12,7 @@ export const register = async (req, res, next) => {
     email: Joi.string().email().required(),
     password: Joi.string().min(6).required(),
     name: Joi.string().required(),
-    role: Joi.string().valid("seller", "buyer", "admin").required(),
+    role: Joi.string().valid("ADMIN", "SELLER", "BUYER").required(),
   })
 
   const { error, value } = requestSchema.validate(req.body);
