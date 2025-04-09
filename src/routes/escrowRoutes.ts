@@ -2,7 +2,7 @@ import { Router } from "express";
 
 import { authenticateJWT } from "../middlewares/auth.middleware";
 import { authorize } from "../middlewares/authorize.middleware";
-import { handleCreateEscrowTransaction, handleDisputeEscrow, handleFundEscrowTransaction, handleMarkAsDelivered, handleReleaseEscrow } from "../controllers/escrow.controller";
+import { handleCreateEscrowTransaction, handleDisputeEscrow, handleFundEscrowTransaction, handleMarkAsDelivered, handleReleaseEscrow, handleResolveDispute } from "../controllers/escrow.controller";
 import { Role } from "@prisma/client";
 
 const router = Router();
@@ -40,6 +40,13 @@ router.post(
   authenticateJWT,
   authorize([Role.BUYER, Role.SELLER]),
   handleDisputeEscrow
+);
+
+router.post(
+  "/:id/resolve",
+  authenticateJWT,
+  authorize([Role.ADMIN]),
+  handleResolveDispute
 );
 
 export default router;

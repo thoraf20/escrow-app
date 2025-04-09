@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import httpStatus from "http-status-codes";
 import Joi from "joi";
-import { createEscrowTransaction, disputeEscrowTransaction, fundEscrowTransaction, markEscrowAsDelivered, releaseEscrowTransaction } from "../services/escrow.service";
+import { createEscrowTransaction, disputeEscrowTransaction, fundEscrowTransaction, markEscrowAsDelivered, releaseEscrowTransaction, resolveDispute } from "../services/escrow.service";
 
 export const handleCreateEscrowTransaction = async (
   req,
@@ -144,5 +144,36 @@ export const handleDisputeEscrow = async (req, res) => {
     return res
       .status(httpStatus.BAD_REQUEST)
       .json({ message: err.message || "Failed to dispute transaction" });
+  }
+};
+
+export const handleResolveDispute = async (req, res) => {
+  const requestSchema = Joi.object({
+    id: Joi.string().required(),
+  });
+
+  const { error, value } = requestSchema.validate(req.params);
+
+  if (error) {
+    return res.status(httpStatus.BAD_REQUEST).json({ message: error.message });
+  }
+
+  try {
+    const { id } = value;
+    const adminId = req.user.id;
+    const { winner, notes } = req.body;
+
+    if (!["BUYER", "SELLER"].includes(winner)) {
+      return res.status(400).json({ message: "Invalid winner" });
+    }
+
+    const resolved = await resolveDispute(id, adminId, winner, notes);
+
+    return res.status(httpStatus.OK).json(resolved);
+  } catch (err: any) {
+    console.error(err);
+    return res
+      .status(httpStatus.BAD_REQUEST)
+      .json({ message: err.message || "Failed to resolve dispute" });
   }
 };

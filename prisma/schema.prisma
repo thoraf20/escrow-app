@@ -40,6 +40,9 @@ model EscrowTransaction {
   amount      Float
   status      EscrowStatus @default(PENDING)
   disputeReason String?
+  resolutionWinner ResolutionParty? // NEW
+  resolutionNotes  String?          // NEW
+  resolvedAt       DateTime?        // NEW
   buyer       User         @relation("BuyerTransactions", fields: [buyerId], references: [id])
   buyerId     String
   seller      User         @relation("SellerTransactions", fields: [sellerId], references: [id])
@@ -56,4 +59,10 @@ enum EscrowStatus {
   RELEASED
   DISPUTED
   CANCELLED
+  RESOLVED
+}
+
+enum ResolutionParty {
+  BUYER
+  SELLER
 }

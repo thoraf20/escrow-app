@@ -101,3 +101,28 @@ export const disputeEscrowTransaction = async (
     },
   });
 };
+
+export const resolveDispute = async (
+  id: string,
+  adminId: string,
+  winner: "BUYER" | "SELLER",
+  notes?: string
+) => {
+  const transaction = await prisma.escrowTransaction.findUnique({
+    where: { id },
+  });
+
+  if (!transaction) throw new Error("Transaction not found");
+  if (transaction.status !== "DISPUTED")
+    throw new Error("Transaction is not in dispute");
+
+  return await prisma.escrowTransaction.update({
+    where: { id },
+    data: {
+      status: "RESOLVED",
+      resolutionWinner: winner,
+      resolutionNotes: notes,
+      resolvedAt: new Date(),
+    },
+  });
+};
